@@ -21,7 +21,8 @@ tstall:
 	cd .. && $(CC) $(CFLAGS) tests/test_pessoa.c src/pessoa.c Unity/unity.c -Iinclude -IUnity -o test_pessoa && ./test_pessoa
 	cd .. && $(CC) $(CFLAGS) tests/test_pm.c src/hashfile.c src/pessoa.c src/pm.c Unity/unity.c -Iinclude -IUnity -o test_pm && ./test_pm
 	cd .. && $(CC) $(CFLAGS) tests/test_qry.c src/qry.c src/svg.c src/hashfile.c src/pessoa.c src/quadra.c Unity/unity.c -Iinclude -IUnity -o test_qry && ./test_qry
-
+	cd .. && $(CC) $(CFLAGS) tests/test_grafo.c src/grafo.c Unity/unity.c -Iinclude -IUnity -o test_grafo && ./test_grafo
+	cd .. && $(CC) $(CFLAGS) tests/test_via.c src/via.c src/grafo.c Unity/unity.c -Iinclude -IUnity -o test_via && ./test_via
 tstall-win:
 	cd .. && $(CC) $(CFLAGS) tests/test_hashfile.c src/hashfile.c Unity/unity.c -Iinclude -IUnity -o test_hash && test_hash.exe
 	cd .. && $(CC) $(CFLAGS) tests/test_svg.c src/svg.c Unity/unity.c -Iinclude -IUnity -o test_svg && test_svg.exe
@@ -30,10 +31,11 @@ tstall-win:
 	cd .. && $(CC) $(CFLAGS) tests/test_pessoa.c src/pessoa.c Unity/unity.c -Iinclude -IUnity -o test_pessoa && test_pessoa.exe
 	cd .. && $(CC) $(CFLAGS) tests/test_pm.c src/hashfile.c src/pessoa.c src/pm.c Unity/unity.c -Iinclude -IUnity -o test_pm && test_pm.exe
 	cd .. && $(CC) $(CFLAGS) tests/test_qry.c src/qry.c src/svg.c src/hashfile.c src/pessoa.c src/quadra.c Unity/unity.c -Iinclude -IUnity -o test_qry && test_qry.exe
-
+	cd .. && $(CC) $(CFLAGS) tests/test_grafo.c src/grafo.c Unity/unity.c -Iinclude -IUnity -o test_grafo && test_grafo.exe
+	cd .. && $(CC) $(CFLAGS) tests/test_via.c src/via.c src/grafo.c Unity/unity.c -Iinclude -IUnity -o test_via && test_via.exe
 clean:
 	rm -f ted ted.exe *.hf *.hfc *.svg *.hfd *.dat
-	rm -f ../test_hash ../test_svg ../test_pessoa ../test_pm ../test_quadra ../test_geo ../test_qry
+	rm -f ../test_hash ../test_svg ../test_pessoa ../test_pm ../test_quadra ../test_geo ../test_qry ../test_grafo ../test_via
 	rm -rf ../saida
 	rm -rf ../o
 
@@ -43,5 +45,6 @@ clean-win:
 	-del /Q ..\test_hash.exe ..\test_svg.exe ..\test_pessoa.exe ..\test_pm.exe ..\test_quadra.exe ..\test_geo.exe ..\test_qry.exe 2>nul
 	-del /Q ..\o\*.svg ..\o\*.txt ..\o\*.hfd ..\o\*.hf ..\o\*.hfc ..\o\*.dot 2>nul
 	-del /Q ..\saida\*.svg ..\saida\*.txt ..\saida\*.hfd ..\saida\*.hf ..\saida\*.hfc ..\saida\*.dot 2>nul
+	-del /Q ..\test_grafo.exe ..\test_via.exe 2>nul
 
 tudo: ted run tstall

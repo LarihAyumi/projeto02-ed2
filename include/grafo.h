@@ -21,16 +21,16 @@ typedef struct Grafo Grafo;
 Grafo* criarGrafo(void);
 
 /**
- * Libera toda a memoria usada pelo grafo
+ * Libera toda a memória usada pelo grafo
  * @param grafo Grafo que sera liberado
  */
 void destruirGrafo(Grafo* grafo);
 
 /**
- * Insere um vertice no grafo
- * @param grafo Grafo onde o vertice sera inserido
- * @param id Identificador do vertice
- * @param x Coordenada x do vertice
+ * Insere um vértice no grafo
+ * @param grafo Grafo onde o vértice sera inserido
+ * @param id Identificador do vértice
+ * @param x Coordenada x do vértice
  * @param y Coordenada y do vértice
  */
 void inserirVertice(Grafo* grafo, const char* id, double x, double y);
@@ -54,5 +54,17 @@ void inserirAresta(Grafo* grafo, const char* origem, const char* destino, const 
  * @param svg Arquivo SVG ja aberto para escrita
  */
 void desenharGrafoSvg(Grafo* grafo, FILE* svg);
+
+/**
+ * Função auxiliar para contar vértices do grafo
+ * @param grafo Grafo que vai ser contado
+ */
+int contarVerticesGrafo(Grafo* grafo);
+
+/**
+ * Função auxiliar para contar arestas do grafo
+ * @param grafo Grafo que vai ser contado
+ */
+int contarArestasGrafo(Grafo* grafo);
 
 #endif

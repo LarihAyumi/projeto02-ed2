@@ -189,7 +189,7 @@ void desenharGrafoSvg(Grafo* grafo, FILE* svg) {
         return;
     }
 
-    fprintf(svg, "\n<!-- Sistema viario -->\n");
+    fprintf(svg, "\n<!----- Sistema viário ----->\n");
 
     for (i = 0; i < grafo->qtd; i++) {
         origemV = &grafo->vertices[i];
@@ -201,18 +201,38 @@ void desenharGrafoSvg(Grafo* grafo, FILE* svg) {
             if (destino >= 0 && destino < grafo->qtd) {
                 destinoV = &grafo->vertices[destino];
 
-                fprintf(
-                    svg,
-                    "<line x1=\"%.2lf\" y1=\"%.2lf\" x2=\"%.2lf\" y2=\"%.2lf\" "
-                    "stroke=\"gray\" stroke-width=\"1\" />\n",
-                    origemV->x,
-                    origemV->y,
-                    destinoV->x,
-                    destinoV->y
-                );
+                fprintf(svg, "<line x1=\"%.2lf\" y1=\"%.2lf\" x2=\"%.2lf\" y2=\"%.2lf\" " "stroke=\"gray\" stroke-width=\"1\" />\n", origemV->x, origemV->y, destinoV->x, destinoV->y);
             }
-
             atual = atual->prox;
         }
     }
+}
+
+int contarVerticesGrafo(Grafo* grafo) {
+    if (grafo == NULL) {
+        return 0;
+    }
+
+    return grafo->qtd;
+}
+
+int contarArestasGrafo(Grafo* grafo) {
+    int i;
+    int total = 0;
+    Aresta* atual;
+
+    if (grafo == NULL) {
+        return 0;
+    }
+
+    for (i = 0; i < grafo->qtd; i++) {
+        atual = grafo->vertices[i].adj;
+
+        while (atual != NULL) {
+            total++;
+            atual = atual->prox;
+        }
+    }
+
+    return total;
 }
