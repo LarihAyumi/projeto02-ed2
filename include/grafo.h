@@ -114,4 +114,32 @@ int calcularComponentesConexos(Grafo* grafo, double vl);
  */
 int calcularComponentesConexosBBox(Grafo* grafo, double vl, double* minX, double* minY, double* maxX, double* maxY, int maxComp);
 
+/**
+ * Aplica a expansão viária no grafo.
+ * A função calcula uma árvore geradora mínima considerando o comprimento das arestas. Depois, dentre as arestas selecionadas pela árvore, aplica a expansão apenas nas que possuem velocidade média menor que vl
+ * Cada aresta expandida tem sua velocidade média aumentada em 50%.
+ * @param grafo Grafo que vai ser analisado e atualizado
+ * @param vl Velocidade limite
+ * @return Quantidade de arestas expandidas
+ */
+int aplicarExpansaoViaria(Grafo* grafo, double vl);
+
+/**
+ * Desenha no SVG as arestas que foram selecionadas pela ultima expansão viária.
+ * As arestas sao desenhadas com linha grossa e vermelha, conforme o comando exp.
+ * @param grafo Grafo analisado
+ * @param svg Arquivo SVG de saida
+ */
+void desenharExpansaoViariaSvg(Grafo* grafo, FILE* svg);
+
+/**
+ * Verifica se uma aresta foi selecionada pela ultima expansão viária.
+ * Função auxiliar usada principalmente em testes.
+ * @param grafo Grafo analisado
+ * @param origem Id do vértice de origem
+ * @param destino Id do vértice de destino
+ * @return 1 se a aresta foi selecionada, 0 caso contrario
+ */
+int arestaFoiExpandida(Grafo* grafo, const char* origem, const char* destino);
+
 #endif
