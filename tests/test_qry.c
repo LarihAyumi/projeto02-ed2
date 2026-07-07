@@ -54,6 +54,9 @@ void tearDown(void) {
 
     remove("testeMvm.txt");
     remove("testeMvm.svg");
+
+    remove("testeRegs.txt");
+    remove("testeRegs.svg");
 }
 
 void testRq(void) {
@@ -669,6 +672,83 @@ void testMvm(void) {
     destruirGrafo(grafo);
 }
 
+void testRegs(void) {
+    FILE* qry = fopen("teste.qry", "w");
+    TEST_ASSERT_NOT_NULL(qry);
+
+    fprintf(qry, "regs 5.0\n");
+    fclose(qry);
+
+    Grafo* grafo = criarGrafo();
+    TEST_ASSERT_NOT_NULL(grafo);
+
+    inserirVertice(grafo, "v1", 0.0, 0.0);
+    inserirVertice(grafo, "v2", 50.0, 20.0);
+    inserirVertice(grafo, "v3", 100.0, 10.0);
+    inserirVertice(grafo, "v4", 300.0, 300.0);
+    inserirVertice(grafo, "v5", 350.0, 330.0);
+
+    inserirAresta(grafo, "v1", "v2", "cep1", "cep2", 50.0, 10.0, "Rua_A");
+    inserirAresta(grafo, "v2", "v3", "cep2", "cep3", 50.0, 10.0, "Rua_A");
+    inserirAresta(grafo, "v4", "v5", "cep4", "cep5", 50.0, 10.0, "Rua_B");
+
+    FILE* txt = fopen("testeRegs.txt", "w");
+    TEST_ASSERT_NOT_NULL(txt);
+    FILE* svg = fopen("testeRegs.svg", "w");
+    TEST_ASSERT_NOT_NULL(svg);
+
+    startSVG(svg);
+    processQry("teste.qry", NULL, NULL, txt, svg, grafo);
+    endSVG(svg);
+
+    fclose(txt);
+    fclose(svg);
+
+    txt = fopen("testeRegs.txt", "r");
+    TEST_ASSERT_NOT_NULL(txt);
+
+    char buffer[300];
+    int achouComponentes = 0;
+    int achouQtd = 0;
+
+    while (fgets(buffer, sizeof(buffer), txt) != NULL) {
+        if (strstr(buffer, "Componentes conexos") != NULL) {
+            achouComponentes = 1;
+        }
+
+        if (strstr(buffer, "2") != NULL) {
+            achouQtd = 1;
+        }
+    }
+
+    fclose(txt);
+
+    TEST_ASSERT_TRUE(achouComponentes);
+    TEST_ASSERT_TRUE(achouQtd);
+
+    svg = fopen("testeRegs.svg", "r");
+    TEST_ASSERT_NOT_NULL(svg);
+
+    int achouRect = 0;
+    int achouOpacity = 0;
+
+    while (fgets(buffer, sizeof(buffer), svg) != NULL) {
+        if (strstr(buffer, "<rect") != NULL) {
+            achouRect = 1;
+        }
+
+        if (strstr(buffer, "fill-opacity=\"0.5\"") != NULL) {
+            achouOpacity = 1;
+        }
+    }
+
+    fclose(svg);
+
+    TEST_ASSERT_TRUE(achouRect);
+    TEST_ASSERT_TRUE(achouOpacity);
+    destruirGrafo(grafo);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -682,6 +762,7 @@ int main(void) {
     RUN_TEST(testDspj);
     RUN_TEST(testO);
     RUN_TEST(testMvm);
+    RUN_TEST(testRegs);
 
     return UNITY_END();
 }

@@ -430,7 +430,31 @@ void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHa
         }
 
         else if (strcmp(comando, "regs") == 0) {
+            double vl, minX[1024], minY[1024], maxX[1024], maxY[1024];
+            int qtd, i, desenhar;
+            const int maxComp = 1024;
 
+            const char* cores[] = {"red","blue","green","orange","purple","brown","cyan","magenta","gold","gray"};
+
+            fscanf(qry, "%lf", &vl);
+            fprintf(txt, "regs %.2lf\n", vl);
+
+            if (grafo==NULL) {
+                fprintf(txt, "Grafo inexistente.\n\n");
+            } else {
+                qtd = calcularComponentesConexosBBox(grafo, vl, minX, minY, maxX, maxY, maxComp);
+                fprintf(txt, "Componentes conexos: %d\n\n", qtd);
+
+                if (svg) {
+                    desenhar = qtd;
+                    if (desenhar>maxComp) {
+                        desenhar=maxComp;
+                    }
+                    for (i = 0; i < desenhar; i++) {
+                        fprintf(svg, "<rect x=\"%.2lf\" y=\"%.2lf\" width=\"%.2lf\" height=\"%.2lf\" ""fill=\"%s\" fill-opacity=\"0.5\" stroke=\"%s\" stroke-width=\"2\" />\n", minX[i], minY[i], maxX[i]-minX[i],maxY[i]-minY[i],cores[i % 10],cores[i % 10]);
+                    }
+                }
+            }
         }
 
         else if (strcmp(comando, "exp") == 0) {
