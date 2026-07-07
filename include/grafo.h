@@ -67,4 +67,27 @@ int contarVerticesGrafo(Grafo* grafo);
  */
 int contarArestasGrafo(Grafo* grafo);
 
+/**
+ * Atualiza a velocidade média das arestas dentro de uma região
+ * Uma aresta é considerada dentro da região quando origem e destino estão dentro do retângulo.
+ * @param grafo Grafo que será atualizado
+ * @param vmNova Nova velocidade média
+ * @param x Coordenada x da região
+ * @param y Coordenada y da região
+ * @param w Largura da região
+ * @param h Altura da região
+ * @return Quantidade de arestas atualizadas
+ */
+int atualizarVelocidadeRegiao(Grafo* grafo, double vmNova, double x, double y, double w, double h);
+
+/**
+ * Retorna a velocidade média de uma aresta.
+ * Função auxiliar usada principalmente em testes.
+ * @param grafo Grafo consultado
+ * @param origem Id do vertice de origem
+ * @param destino Id do vertice de destino
+ * @return Velocidade media da aresta, ou -1.0 caso nao exista
+ */
+double obterVelocidadeAresta(Grafo* grafo, const char* origem, const char* destino);
+
 #endif
