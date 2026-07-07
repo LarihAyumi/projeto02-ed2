@@ -48,6 +48,9 @@ void tearDown(void) {
 
     remove("testeRIP.txt");
     remove("testeRIP.svg");
+
+    remove("testeO.txt");
+    remove("testeO.svg");
 }
 
 void testRq(void) {
@@ -560,6 +563,79 @@ void testDspj(void) {
     closeFile(pessoasHash);
 }
 
+void testO(void) {
+    FILE* qry = fopen("teste.qry", "w");
+    TEST_ASSERT_NOT_NULL(qry);
+
+    fprintf(qry, "@o? R0 cep1 S 50\n");
+    fclose(qry);
+
+    HashFile* pessoasHash = createFile("teste_qry_hash", getPessoaSize());
+    TEST_ASSERT_NOT_NULL(pessoasHash);
+
+    HashFile* quadrasHash = createFile("teste_quadras_hash", getQuadraSize());
+    TEST_ASSERT_NOT_NULL(quadrasHash);
+    Quadra* q = createQuadra("cep1", 200, 200, 100, 100);
+
+    insertRegister(quadrasHash, "cep1", q);
+    free(q);
+
+    FILE* txt = fopen("testeO.txt", "w");
+    TEST_ASSERT_NOT_NULL(txt);
+
+    FILE* svg = fopen("testeO.svg", "w");
+    TEST_ASSERT_NOT_NULL(svg);
+
+    startSVG(svg);
+    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg, NULL);
+    endSVG(svg);
+
+    fclose(txt);
+    fclose(svg);
+
+    txt = fopen("testeO.txt", "r");
+    TEST_ASSERT_NOT_NULL(txt);
+
+    char buffer[300];
+    int achouReg = 0;
+    int achouX = 0;
+    int achouY = 0;
+
+    while (fgets(buffer, sizeof(buffer), txt) != NULL) {
+        if (strstr(buffer, "R0:") != NULL) achouReg = 1;
+        if (strstr(buffer, "250.00") != NULL) achouX = 1;
+        if (strstr(buffer, "200.00") != NULL) achouY = 1;
+    }
+
+    fclose(txt);
+
+    TEST_ASSERT_TRUE(achouReg);
+    TEST_ASSERT_TRUE(achouX);
+    TEST_ASSERT_TRUE(achouY);
+
+    svg = fopen("testeO.svg", "r");
+    TEST_ASSERT_NOT_NULL(svg);
+
+    int achouLine = 0;
+    int achouTracejado = 0;
+    int achouTexto = 0;
+
+    while (fgets(buffer, sizeof(buffer), svg) != NULL) {
+        if (strstr(buffer, "<line") != NULL) achouLine = 1;
+        if (strstr(buffer, "stroke-dasharray") != NULL) achouTracejado = 1;
+        if (strstr(buffer, "R0") != NULL) achouTexto = 1;
+    }
+
+    fclose(svg);
+
+    TEST_ASSERT_TRUE(achouLine);
+    TEST_ASSERT_TRUE(achouTracejado);
+    TEST_ASSERT_TRUE(achouTexto);
+
+    closeFile(pessoasHash);
+    closeFile(quadrasHash);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -571,6 +647,7 @@ int main(void) {
     RUN_TEST(testRip);
     RUN_TEST(testMud);
     RUN_TEST(testDspj);
+    RUN_TEST(testO);
 
     return UNITY_END();
 }

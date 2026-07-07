@@ -32,6 +32,15 @@ typedef struct {
     int mendigas;
 } CensoContext;
 
+typedef struct {
+    int usado;
+    double x;
+    double y;
+    char cep[20];
+    char face;
+    int num;
+} RegGeo;
+
 //funcs de callbacks
 static void rqCallback(const char* key, void* record, void* extra) {
     (void) key;
@@ -138,6 +147,23 @@ static int enderecoToXY(HashFile* quadrasHash, const char* cep, char face, int n
     return 1;
 }
 
+//função auxiliar de conversão 
+static int regToIndex(const char* reg) {
+    int idx;
+
+    if (!reg || reg[0] != 'R') {
+        return -1;
+    }
+
+    idx = atoi(reg + 1);
+
+    if (idx < 0 || idx > 10) {
+        return -1;
+    }
+
+    return idx;
+}
+
 //comandos
 void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHash, FILE* txt, FILE* svg, Grafo* grafo) {
     FILE* qry = fopen(qryPath, "r");
@@ -149,6 +175,7 @@ void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHa
     }
 
     char comando[10];
+    RegGeo regs[11] = {0};
 
     while (fscanf(qry, "%s", comando) != EOF) {
 
@@ -358,8 +385,34 @@ void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHa
         }
 
         else if (strcmp(comando, "@o?") == 0) {
+            char reg[10], cep[20], face;
+            int num, idx;
+            double x, y;
 
+            fscanf(qry, "%s %s %c %d", reg, cep, &face, &num);
+            idx = regToIndex(reg);
 
+            fprintf(txt, "@o? %s %s %c %d\n", reg, cep, face, num);
+
+            if (idx == -1) {
+                fprintf(txt, "Registrador invalido: %s\n\n", reg);
+            } else if (!enderecoToXY(quadrasHash, cep, face, num, &x, &y)) {
+                fprintf(txt, "Endereco nao encontrado: %s/%c/%d\n\n", cep, face, num);
+            } else {
+                regs[idx].usado = 1;
+                regs[idx].x = x;
+                regs[idx].y = y;
+                strcpy(regs[idx].cep, cep);
+                regs[idx].face = face;
+                regs[idx].num = num;
+
+                fprintf(txt, "%s: %.2lf %.2lf\n\n", reg, x, y);
+
+                if (svg) {
+                    fprintf(svg, "<line x1=\"%.2lf\" y1=\"0\" x2=\"%.2lf\" y2=\"%.2lf\" ""stroke=\"red\" stroke-width=\"1\" stroke-dasharray=\"5,5\" />\n", x, x, y);
+                    fprintf(svg, "<text x=\"%.2lf\" y=\"12\" fill=\"red\" font-size=\"12\">%s</text>\n", x + 3, reg);
+                }
+            }
         }
 
         else if (strcmp(comando, "mvm") == 0) {
@@ -378,6 +431,5 @@ void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHa
 
         }
     }
-
-    fclose(qry);
+fclose(qry);
 }
