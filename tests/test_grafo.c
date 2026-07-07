@@ -125,6 +125,64 @@ void testGrafoAtualizaVelocidadeRegiao(void) {
     destruirGrafo(grafo);
 }
 
+void testGrafoComponentesConexos(void) {
+    Grafo* grafo = criarGrafo();
+
+    TEST_ASSERT_NOT_NULL(grafo);
+
+    inserirVertice(grafo, "v1", 0.0, 0.0);
+    inserirVertice(grafo, "v2", 50.0, 0.0);
+    inserirVertice(grafo, "v3", 100.0, 0.0);
+    inserirVertice(grafo, "v4", 300.0, 300.0);
+    inserirVertice(grafo, "v5", 350.0, 300.0);
+
+    inserirAresta(grafo, "v1", "v2", "cep1", "cep2", 50.0, 10.0, "Rua_A");
+    inserirAresta(grafo, "v2", "v3", "cep2", "cep3", 50.0, 10.0, "Rua_A");
+
+    inserirAresta(grafo, "v4", "v5", "cep4", "cep5", 50.0, 10.0, "Rua_B");
+
+    TEST_ASSERT_EQUAL_INT(2, calcularComponentesConexos(grafo, 5.0));
+
+    destruirGrafo(grafo);
+}
+
+void testGrafoComponentesConexosBBox(void) {
+    Grafo* grafo = criarGrafo();
+
+    double minX[10], minY[10], maxX[10], maxY[10];
+    int qtd;
+
+    TEST_ASSERT_NOT_NULL(grafo);
+
+    inserirVertice(grafo, "v1", 0.0, 0.0);
+    inserirVertice(grafo, "v2", 50.0, 20.0);
+    inserirVertice(grafo, "v3", 100.0, 10.0);
+
+    inserirVertice(grafo, "v4", 300.0, 300.0);
+    inserirVertice(grafo, "v5", 350.0, 330.0);
+
+    inserirAresta(grafo, "v1", "v2", "cep1", "cep2", 50.0, 10.0, "Rua_A");
+    inserirAresta(grafo, "v2", "v3", "cep2", "cep3", 50.0, 10.0, "Rua_A");
+
+    inserirAresta(grafo, "v4", "v5", "cep4", "cep5", 50.0, 10.0, "Rua_B");
+
+    qtd = calcularComponentesConexosBBox(grafo, 5.0, minX, minY, maxX, maxY, 10);
+
+    TEST_ASSERT_EQUAL_INT(2, qtd);
+
+    TEST_ASSERT_EQUAL_INT(0, (int) minX[0]);
+    TEST_ASSERT_EQUAL_INT(0, (int) minY[0]);
+    TEST_ASSERT_EQUAL_INT(100, (int) maxX[0]);
+    TEST_ASSERT_EQUAL_INT(20, (int) maxY[0]);
+
+    TEST_ASSERT_EQUAL_INT(300, (int) minX[1]);
+    TEST_ASSERT_EQUAL_INT(300, (int) minY[1]);
+    TEST_ASSERT_EQUAL_INT(350, (int) maxX[1]);
+    TEST_ASSERT_EQUAL_INT(330, (int) maxY[1]);
+
+    destruirGrafo(grafo);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -135,6 +193,8 @@ int main(void) {
     RUN_TEST(testGrafoNaoInsereArestaComVerticeInexistente);
     RUN_TEST(testGrafoDesenhaSvg);
     RUN_TEST(testGrafoAtualizaVelocidadeRegiao);
+    RUN_TEST(testGrafoComponentesConexos);
+    RUN_TEST(testGrafoComponentesConexosBBox);
 
     return UNITY_END();
 }
