@@ -189,7 +189,7 @@ void desenharGrafoSvg(Grafo* grafo, FILE* svg) {
         return;
     }
 
-    fprintf(svg, "\n<!----- Sistema viário ----->\n");
+    fprintf(svg, "\n<g id=\"sistema-viario\">\n");
 
     for (i = 0; i < grafo->qtd; i++) {
         origemV = &grafo->vertices[i];
@@ -206,6 +206,7 @@ void desenharGrafoSvg(Grafo* grafo, FILE* svg) {
             atual = atual->prox;
         }
     }
+    fprintf(svg, "</g>\n");
 }
 
 int contarVerticesGrafo(Grafo* grafo) {
