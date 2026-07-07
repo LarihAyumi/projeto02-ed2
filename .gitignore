@@ -1,0 +1,16 @@
+#Arquivos do hashfile (gerados automaticamente)
+*.hf
+*.hfc
+*.hfd
+
+#Arquivos de saída 
+*.svg
+*.dat
+*.txt
+!leiame.txt
+
+#Executáveis
+*.exe
+
+#Arquivos temporários
+*.o
