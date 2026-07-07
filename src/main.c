@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (strlen(arqQry) > 0) {
-        processQry(qryPath, pessoas, quadras, txt, svg);
+        processQry(qryPath, pessoas, quadras, txt, svg, grafo);
     }
 
     endSVG(svg);

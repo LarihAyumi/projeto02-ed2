@@ -2,6 +2,7 @@
 #define QRY_H
 
 #include "hashfile.h"
+#include "grafo.h"
 #include <stdio.h>
 
 /** Módulo responsável pelo processamento de comandos de consulta e atualização.
@@ -16,6 +17,7 @@
  * @param quadrasHash hashfile contendo as quadras da cidade
  * @param txt Arquivo de saída para relatórios em texto
  * @param svg Arquivo de saída para visualização gráfica
+ * @param grafo Grafo do sistema viário da cidade
  * COMANDOS PARA UTILIZAR
  * - rq = Remove quadra de acordo com o cep
  * - pq = Calcula o número de moradores da quadra (por face e total).
@@ -25,7 +27,12 @@
  * - rip = Pessoa falece.
  * - mud = Morador identificado por cpf muda-se para novo endereço.
  * - dspj = Morador identificado por cpf é despejado.
+ * - @o? = Armazena a posição geográfica do endereço no registrador
+ * - mvm = Atualiza velocidade média de arestas em uma região
+ * - regs = Calcula componentes conexos considerando trechos lentos.
+ * - exp = Seleciona trechos para expansão viária de arestas com velocidade inferior a v1.
+ * - p? = Calcula percurso mais curto e mais rápido entre dois registradores.
  */
-void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHash, FILE* txt, FILE* svg);
+void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHash, FILE* txt, FILE* svg, Grafo* grafo);
 
 #endif

@@ -81,7 +81,7 @@ void testRq(void) {
     TEST_ASSERT_NOT_NULL(svg);
 
     startSVG(svg);
-    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg);
+    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg, NULL);
     endSVG(svg);
 
     fclose(txt);
@@ -170,7 +170,7 @@ void testPq(void) {
     FILE* svg = fopen("testePQ.svg", "w");
 
     startSVG(svg);
-    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg);
+    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg, NULL);
     endSVG(svg);
 
     fclose(txt);
@@ -246,7 +246,7 @@ void testCenso(void) {
     FILE* svg = fopen("testeCENSO.svg", "w");
     TEST_ASSERT_NOT_NULL(svg);
 
-    processQry("teste.qry", pessoasHash, NULL, txt, svg);
+    processQry("teste.qry", pessoasHash, NULL, txt, svg, NULL);
 
     fclose(txt);
     fclose(svg);
@@ -288,7 +288,7 @@ void testH(void) {
     FILE* svg = fopen("testeH.svg", "w");
     TEST_ASSERT_NOT_NULL(svg);
 
-    processQry("teste.qry", pessoasHash, NULL, txt, svg);
+    processQry("teste.qry", pessoasHash, NULL, txt, svg, NULL);
 
     fclose(txt);
     fclose(svg);
@@ -320,7 +320,7 @@ void testNasc(void) {
     FILE* txt = fopen("testeNasc.txt", "w");
     FILE* svg = fopen("testeNasc.svg", "w");
 
-    processQry("teste.qry", pessoasHash, NULL, txt, svg);
+    processQry("teste.qry", pessoasHash, NULL, txt, svg, NULL);
 
     fclose(txt);
     fclose(svg);
@@ -366,7 +366,7 @@ void testRip(void) {
     TEST_ASSERT_NOT_NULL(svg);
 
     startSVG(svg);
-    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg);
+    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg, NULL);
     endSVG(svg);
     
 
@@ -441,7 +441,7 @@ void testMud(void) {
     TEST_ASSERT_NOT_NULL(svg);
 
     startSVG(svg);
-    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg);
+    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg, NULL);
     endSVG(svg);
 
     fclose(txt);
@@ -507,7 +507,7 @@ void testDspj(void) {
     TEST_ASSERT_NOT_NULL(svg);
 
     startSVG(svg);
-    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg);
+    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg, NULL);
     endSVG(svg);
 
     fclose(txt);

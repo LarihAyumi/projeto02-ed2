@@ -3,6 +3,7 @@
 #include "../include/quadra.h"
 #include "../include/hashfile.h"
 #include "../include/svg.h"
+#include "../include/grafo.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -138,8 +139,9 @@ static int enderecoToXY(HashFile* quadrasHash, const char* cep, char face, int n
 }
 
 //comandos
-void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHash, FILE* txt, FILE* svg) {
+void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHash, FILE* txt, FILE* svg, Grafo* grafo) {
     FILE* qry = fopen(qryPath, "r");
+    (void) grafo;
 
     if (!qry) {
         printf("Erro ao abrir arquivo QRY: %s\n", qryPath);
@@ -353,6 +355,27 @@ void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHa
                 }
             }
             free(p);
+        }
+
+        else if (strcmp(comando, "@o?") == 0) {
+
+
+        }
+
+        else if (strcmp(comando, "mvm") == 0) {
+
+        }
+        
+        else if (strcmp(comando, "regs") == 0) {
+
+        }
+
+        else if (strcmp(comando, "exp") == 0) {
+
+        }
+        
+        else if (strcmp(comando, "p?") == 0) {
+
         }
     }
 
