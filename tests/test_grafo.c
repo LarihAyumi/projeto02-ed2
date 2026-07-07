@@ -105,6 +105,26 @@ void testGrafoDesenhaSvg(void) {
     destruirGrafo(grafo);
 }
 
+void testGrafoAtualizaVelocidadeRegiao(void) {
+    Grafo* grafo = criarGrafo();
+
+    TEST_ASSERT_NOT_NULL(grafo);
+
+    inserirVertice(grafo, "v1", 10.0, 10.0);
+    inserirVertice(grafo, "v2", 50.0, 50.0);
+    inserirVertice(grafo, "v3", 200.0, 200.0);
+
+    inserirAresta(grafo, "v1", "v2", "cep1", "cep2", 100.0, 5.0, "Rua_A");
+    inserirAresta(grafo, "v1", "v3", "cep1", "cep3", 100.0, 7.0, "Rua_B");
+
+    TEST_ASSERT_EQUAL_INT(1, atualizarVelocidadeRegiao(grafo, 12.5, 0.0, 0.0, 100.0, 100.0));
+
+    TEST_ASSERT_EQUAL_INT(125, (int)(obterVelocidadeAresta(grafo, "v1", "v2") * 10 + 0.5));
+    TEST_ASSERT_EQUAL_INT(70, (int)(obterVelocidadeAresta(grafo, "v1", "v3") * 10 + 0.5));
+   
+    destruirGrafo(grafo);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -114,6 +134,7 @@ int main(void) {
     RUN_TEST(testGrafoInsereAresta);
     RUN_TEST(testGrafoNaoInsereArestaComVerticeInexistente);
     RUN_TEST(testGrafoDesenhaSvg);
+    RUN_TEST(testGrafoAtualizaVelocidadeRegiao);
 
     return UNITY_END();
 }

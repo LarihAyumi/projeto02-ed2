@@ -167,7 +167,6 @@ static int regToIndex(const char* reg) {
 //comandos
 void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHash, FILE* txt, FILE* svg, Grafo* grafo) {
     FILE* qry = fopen(qryPath, "r");
-    (void) grafo;
 
     if (!qry) {
         printf("Erro ao abrir arquivo QRY: %s\n", qryPath);
@@ -416,9 +415,20 @@ void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHa
         }
 
         else if (strcmp(comando, "mvm") == 0) {
+            double v, x, y, w, h;
+            int qtd;
 
+            fscanf(qry, "%lf %lf %lf %lf %lf", &v, &x, &y, &w, &h);
+            fprintf(txt, "mvm %.2lf %.2lf %.2lf %.2lf %.2lf\n", v, x, y, w, h);
+
+            if (grafo == NULL) {
+                fprintf(txt, "O grafo não existe.\n\n");
+            } else {
+                qtd = atualizarVelocidadeRegiao(grafo, v, x, y, w, h);
+                fprintf(txt, "Arestas atualizadas: %d\n\n", qtd);
+            }
         }
-        
+
         else if (strcmp(comando, "regs") == 0) {
 
         }

@@ -237,3 +237,83 @@ int contarArestasGrafo(Grafo* grafo) {
 
     return total;
 }
+
+static int pontoDentroRegiao(double px, double py, double x, double y, double w, double h) {
+    double x1 = x;
+    double y1 = y;
+    double x2 = x + w;
+    double y2 = y + h;
+    double aux;
+
+    if (x2 < x1) {
+        aux = x1;
+        x1 = x2;
+        x2 = aux;
+    }
+
+    if (y2 < y1) {
+        aux = y1;
+        y1 = y2;
+        y2 = aux;
+    }
+
+    return px >= x1 && px <= x2 && py >= y1 && py <= y2;
+}
+
+int atualizarVelocidadeRegiao(Grafo* grafo, double vmNova, double x, double y, double w, double h) {
+    int i;
+    int qtd = 0;
+    Aresta* atual;
+    Vertice* origemV;
+    Vertice* destinoV;
+
+    if (grafo == NULL) {
+        return 0;
+    }
+
+    for (i = 0; i < grafo->qtd; i++) {
+        origemV = &grafo->vertices[i];
+        atual = origemV->adj;
+
+        while (atual != NULL) {
+            destinoV = &grafo->vertices[atual->destino];
+
+            if (
+                pontoDentroRegiao(origemV->x, origemV->y, x, y, w, h) &&
+                pontoDentroRegiao(destinoV->x, destinoV->y, x, y, w, h)
+            ) {
+                atual->vm = vmNova;
+                qtd++;
+            }
+            atual = atual->prox;
+        }
+    }
+
+    return qtd;
+}
+
+double obterVelocidadeAresta(Grafo* grafo, const char* origem, const char* destino) {
+    int idxOrigem;
+    int idxDestino;
+    Aresta* atual;
+
+    if (grafo == NULL || origem == NULL || destino == NULL) {
+        return -1.0;
+    }
+    idxOrigem = buscarIndiceVertice(grafo, origem);
+    idxDestino = buscarIndiceVertice(grafo, destino);
+
+    if (idxOrigem == -1 || idxDestino == -1) {
+        return -1.0;
+    }
+    atual = grafo->vertices[idxOrigem].adj;
+
+    while (atual != NULL) {
+        if (atual->destino == idxDestino) {
+            return atual->vm;
+        }
+        atual = atual->prox;
+    }
+
+    return -1.0;
+}

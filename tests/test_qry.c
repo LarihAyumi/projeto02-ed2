@@ -51,6 +51,9 @@ void tearDown(void) {
 
     remove("testeO.txt");
     remove("testeO.svg");
+
+    remove("testeMvm.txt");
+    remove("testeMvm.svg");
 }
 
 void testRq(void) {
@@ -636,6 +639,36 @@ void testO(void) {
     closeFile(quadrasHash);
 }
 
+void testMvm(void) {
+    FILE* qry = fopen("teste.qry", "w");
+    TEST_ASSERT_NOT_NULL(qry);
+
+    fprintf(qry, "mvm 12.5 0 0 100 100\n");
+    fclose(qry);
+
+    Grafo* grafo = criarGrafo();
+    TEST_ASSERT_NOT_NULL(grafo);
+
+    inserirVertice(grafo, "v1", 10.0, 10.0);
+    inserirVertice(grafo, "v2", 50.0, 50.0);
+    inserirVertice(grafo, "v3", 200.0, 200.0);
+
+    inserirAresta(grafo, "v1", "v2", "cep1", "cep2", 100.0, 5.0, "Rua_A");
+    inserirAresta(grafo, "v1", "v3", "cep1", "cep3", 100.0, 7.0, "Rua_B");
+
+    FILE* txt = fopen("testeMvm.txt", "w");
+    TEST_ASSERT_NOT_NULL(txt);
+
+    processQry("teste.qry", NULL, NULL, txt, NULL, grafo);
+
+    fclose(txt);
+
+    TEST_ASSERT_EQUAL_INT(125, (int)(obterVelocidadeAresta(grafo, "v1", "v2") * 10 + 0.5));
+    TEST_ASSERT_EQUAL_INT(70, (int)(obterVelocidadeAresta(grafo, "v1", "v3") * 10 + 0.5));
+    
+    destruirGrafo(grafo);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -648,6 +681,7 @@ int main(void) {
     RUN_TEST(testMud);
     RUN_TEST(testDspj);
     RUN_TEST(testO);
+    RUN_TEST(testMvm);
 
     return UNITY_END();
 }
