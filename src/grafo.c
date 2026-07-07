@@ -317,3 +317,115 @@ double obterVelocidadeAresta(Grafo* grafo, const char* origem, const char* desti
 
     return -1.0;
 }
+
+static void visitarComponente(Grafo* grafo, int inicio, double vl, int* visitado, double* minX, double* minY, double* maxX, double* maxY) {
+    int* pilha;
+    int topo = 0;
+    int i;
+    int atualIdx;
+    Aresta* aresta;
+    Vertice* v;
+
+    pilha = malloc(sizeof(int) * grafo->qtd);
+    if (!pilha) {
+        return;
+    }
+
+    pilha[topo++] = inicio;
+    visitado[inicio] = 1;
+    *minX= grafo->vertices[inicio].x;
+    *maxX= grafo->vertices[inicio].x;
+    *minY= grafo->vertices[inicio].y;
+    *maxY= grafo->vertices[inicio].y;
+
+    while (topo > 0) {
+        atualIdx = pilha[--topo];
+        v = &grafo->vertices[atualIdx];
+
+        if (v->x<*minX) *minX= v->x;
+        if (v->x>*maxX) *maxX= v->x;
+        if (v->y<*minY) *minY= v->y;
+        if (v->y>*maxY) *maxY= v->y;
+
+        aresta = v->adj;
+
+        while (aresta != NULL) {
+            if (aresta->vm >= vl && !visitado[aresta->destino]) {
+                visitado[aresta->destino] = 1;
+                pilha[topo++] = aresta->destino;
+            }
+            aresta = aresta->prox;
+        }
+
+        for (i = 0; i < grafo->qtd; i++) {
+            aresta = grafo->vertices[i].adj;
+
+            while (aresta != NULL) {
+                if (aresta->destino == atualIdx && aresta->vm >= vl && !visitado[i]) {
+                    visitado[i] = 1;
+                    pilha[topo++] = i;
+                }
+                aresta = aresta->prox;
+            }
+        }
+    }
+    free(pilha);
+}
+
+int calcularComponentesConexos(Grafo* grafo,double vl) {
+    int* visitado;
+    int i;
+    int qtd = 0;
+    double minX, minY, maxX, maxY;
+
+    if (grafo == NULL) {
+        return 0;
+    }
+
+    visitado = calloc(grafo->qtd, sizeof(int));
+    if (!visitado) {
+        return 0;
+    }
+
+    for (i = 0; i < grafo->qtd; i++) {
+        if (!visitado[i]) {
+            visitarComponente(grafo, i, vl, visitado, &minX, &minY, &maxX, &maxY);
+            qtd++;
+        }
+    }
+
+    free(visitado);
+    return qtd;
+}
+
+int calcularComponentesConexosBBox(Grafo* grafo, double vl, double* minX,double* minY, double* maxX,double* maxY, int maxComp) {
+    int* visitado;
+    int i;
+    int qtd = 0;
+    double cMinX, cMinY, cMaxX, cMaxY;
+
+    if (grafo == NULL||minX == NULL|| minY == NULL || maxX == NULL ||maxY == NULL) {
+        return 0;
+    }
+
+    visitado = calloc(grafo->qtd, sizeof(int));
+    if (!visitado) {
+        return 0;
+    }
+
+    for (i = 0; i < grafo->qtd; i++) {
+        if (!visitado[i]) {
+            visitarComponente(grafo, i, vl, visitado, &cMinX, &cMinY, &cMaxX, &cMaxY);
+            if (qtd < maxComp) {
+                minX[qtd]= cMinX;
+                minY[qtd]= cMinY;
+                maxX[qtd]= cMaxX;
+                maxY[qtd]= cMaxY;
+            }
+            qtd++;
+        }
+    }
+
+    free(visitado);
+    return qtd;
+}
