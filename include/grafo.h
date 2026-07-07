@@ -90,4 +90,28 @@ int atualizarVelocidadeRegiao(Grafo* grafo, double vmNova, double x, double y, d
  */
 double obterVelocidadeAresta(Grafo* grafo, const char* origem, const char* destino);
 
+
+/**
+ * Calcula a quantidade de componentes conexos do grafo considerando apenas arestas com velocidade media suficiente.
+ * Uma aresta e considerada valida quando sua velocidade media é maior ou igual ao limite informado.
+ * @param grafo Grafo analisado
+ * @param vl Velocidade limite
+ * @return Quantidade de componentes conexos encontrados
+ */
+int calcularComponentesConexos(Grafo* grafo, double vl);
+
+/**
+ * Calcula os componentes conexos e seus respectivos retângulos envolventes.
+ * Os vetores minX, minY, maxX e maxY devem possuir espaço suficiente para armazenar os dados dos componentes encontrados. A quantidade máxima permitida é informada por maxComp.
+ * @param grafo Grafo analisado
+ * @param vl Velocidade limite
+ * @param minX Vetor com menor x de cada componente
+ * @param minY Vetor com menor y de cada componente
+ * @param maxX Vetor com maior x de cada componente
+ * @param maxY Vetor com maior y de cada componente
+ * @param maxComp Quantidade maxima de componentes armazenaveis
+ * @return Quantidade de componentes conexos encontrados
+ */
+int calcularComponentesConexosBBox(Grafo* grafo, double vl, double* minX, double* minY, double* maxX, double* maxY, int maxComp);
+
 #endif
