@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <float.h>
 
 #define MAX_ID 64
 #define MAX_CEP 64
@@ -642,5 +643,298 @@ void desenharExpansaoViariaSvg(Grafo* grafo, FILE* svg) {
             }
             atual = atual->prox;
         }
+    }
+}
+
+static Aresta* obterArestaPorIndices(Grafo* grafo, int origem, int destino) {
+    Aresta* atual;
+
+    if (grafo == NULL || origem < 0 || destino < 0 || origem >= grafo->qtd || destino >= grafo->qtd) {
+        return NULL;
+    }
+
+    atual = grafo->vertices[origem].adj;
+
+    while (atual != NULL) {
+        if (atual->destino == destino) {
+            return atual;
+        }
+
+        atual = atual->prox;
+    }
+    return NULL;
+}
+
+int obterVerticeMaisProximo(Grafo* grafo, double x, double y, char* idOut, int tamId) {
+    int i;
+    int melhor = -1;
+    double dx, dy, dist;
+    double melhorDist = DBL_MAX;
+
+    if (grafo == NULL || idOut == NULL || tamId <= 0 || grafo->qtd <= 0) {
+        return 0;
+    }
+
+    for (i = 0; i < grafo->qtd; i++) {
+        dx = grafo->vertices[i].x - x;
+        dy = grafo->vertices[i].y - y;
+        dist = dx * dx + dy * dy;
+
+        if (dist < melhorDist) {
+            melhorDist = dist;
+            melhor = i;
+        }
+    }
+
+    if (melhor == -1) {
+        return 0;
+    }
+
+    strncpy(idOut, grafo->vertices[melhor].id, tamId - 1);
+    idOut[tamId - 1] = '\0';
+
+    return 1;
+}
+
+static double custoAresta(Aresta* aresta, int criterio) {
+    if (aresta == NULL) {
+        return DBL_MAX;
+    }
+
+    if (criterio == GRAFO_CRITERIO_RAPIDO) {
+        if (aresta->vm <= 0.0) {
+            return DBL_MAX;
+        }
+
+        return aresta->cmp / aresta->vm;
+    }
+
+    return aresta->cmp;
+}
+
+int calcularCaminhoDijkstra(
+    Grafo* grafo,
+    const char* origem,
+    const char* destino,
+    int criterio,
+    char caminho[][GRAFO_ID_MAX],
+    int maxCaminho,
+    double* custo
+) {
+    int n, i, j, atualIdx, origemIdx, destinoIdx;
+    int qtdCaminho = 0;
+    int* visitado;
+    int* anterior;
+    int* temp;
+    double* dist;
+    double menor, novoCusto, c;
+    Aresta* aresta;
+
+    if (grafo == NULL||origem == NULL || destino == NULL ||caminho == NULL ||maxCaminho <= 0 ||(criterio != GRAFO_CRITERIO_CURTO && criterio != GRAFO_CRITERIO_RAPIDO)) {
+        return 0;
+    }
+
+    origemIdx = buscarIndiceVertice(grafo, origem);
+    destinoIdx = buscarIndiceVertice(grafo, destino);
+
+    if (origemIdx == -1 || destinoIdx == -1) {
+        return 0;
+    }
+
+    n = grafo->qtd;
+    dist = malloc(sizeof(double) * n);
+    visitado = calloc(n, sizeof(int));
+    anterior = malloc(sizeof(int) * n);
+    temp = malloc(sizeof(int) * n);
+
+    if (dist == NULL || visitado == NULL || anterior == NULL || temp == NULL) {
+        free(dist);
+        free(visitado);
+        free(anterior);
+        free(temp);
+        return 0;
+    }
+
+    for (i = 0; i < n; i++) {
+        dist[i] = DBL_MAX;
+        anterior[i] = -1;
+    }
+
+    dist[origemIdx] = 0.0;
+
+    for (i = 0; i < n; i++) {
+        atualIdx = -1;
+        menor = DBL_MAX;
+
+        for (j = 0; j < n; j++) {
+            if (!visitado[j] && dist[j] < menor) {
+                menor = dist[j];
+                atualIdx = j;
+            }
+        }
+
+        if (atualIdx == -1) {
+            break;
+        }
+
+        if (atualIdx == destinoIdx) {
+            break;
+        }
+
+        visitado[atualIdx] = 1;
+
+        aresta= grafo->vertices[atualIdx].adj;
+
+        while (aresta != NULL) {
+            c= custoAresta(aresta, criterio);
+
+            if (c < DBL_MAX && !visitado[aresta->destino]) {
+                novoCusto = dist[atualIdx] + c;
+
+                if (novoCusto < dist[aresta->destino]) {
+                    dist[aresta->destino] = novoCusto;
+                    anterior[aresta->destino] = atualIdx;
+                }
+            }
+            aresta = aresta->prox;
+        }
+    }
+
+    if (dist[destinoIdx] == DBL_MAX) {
+        free(dist);
+        free(visitado);
+        free(anterior);
+        free(temp);
+        return 0;
+    }
+
+    atualIdx = destinoIdx;
+
+    while (atualIdx != -1) {
+        temp[qtdCaminho++] = atualIdx;
+
+        if (atualIdx == origemIdx) {
+            break;
+        }
+
+        atualIdx = anterior[atualIdx];
+    }
+
+    if (qtdCaminho > maxCaminho || temp[qtdCaminho - 1] != origemIdx) {
+        free(dist);
+        free(visitado);
+        free(anterior);
+        free(temp);
+        return 0;
+    }
+
+    for (i = 0; i < qtdCaminho; i++) {
+        int idx = temp[qtdCaminho - 1 - i];
+
+        strncpy(caminho[i], grafo->vertices[idx].id, GRAFO_ID_MAX - 1);
+        caminho[i][GRAFO_ID_MAX - 1] = '\0';
+    }
+
+    if (custo != NULL) {
+        *custo = dist[destinoIdx];
+    }
+
+    free(dist);
+    free(visitado);
+    free(anterior);
+    free(temp);
+
+    return qtdCaminho;
+}
+
+void escreverCaminhoTxt(
+    Grafo* grafo,
+    FILE* txt,
+    char caminho[][GRAFO_ID_MAX],
+    int qtd,
+    const char* titulo
+) {
+    int i;
+    int idxOrigem;
+    int idxDestino;
+    Aresta* aresta;
+
+    if (grafo == NULL || txt == NULL || caminho == NULL || qtd <= 0) {
+        return;
+    }
+
+    fprintf(txt, "%s\n", titulo != NULL ? titulo : "Caminho");
+
+    if (qtd == 1) {
+        fprintf(txt, "Origem e destino no mesmo vertice: %s\n\n", caminho[0]);
+        return;
+    }
+
+    for (i = 0; i < qtd - 1; i++) {
+        idxOrigem = buscarIndiceVertice(grafo, caminho[i]);
+        idxDestino = buscarIndiceVertice(grafo, caminho[i + 1]);
+        aresta = obterArestaPorIndices(grafo, idxOrigem, idxDestino);
+
+        if (aresta != NULL) {
+            fprintf(txt, "Siga de %s para %s pela %s. Comprimento: %.2lf. Velocidade media: %.2lf.\n",caminho[i],caminho[i + 1],aresta->nome, aresta->cmp,aresta->vm);
+        } else {
+            fprintf(txt, "Siga de %s para %s.\n", caminho[i], caminho[i + 1]);
+        }
+    }
+
+    fprintf(txt, "\n");
+}
+
+void desenharCaminhoSvg(
+    Grafo* grafo,
+    FILE* svg,
+    char caminho[][GRAFO_ID_MAX],
+    int qtd,
+    const char* cor,
+    const char* idPath,
+    int animado
+) {
+    int i, idx;
+    const char* corUso;
+    const char* idUso;
+
+    if (grafo == NULL || svg == NULL || caminho == NULL || qtd <= 0) {
+        return;
+    }
+
+    corUso = cor != NULL ? cor : "black";
+    idUso = idPath != NULL ? idPath : "caminho";
+    idx = buscarIndiceVertice(grafo, caminho[0]);
+
+    if (idx == -1) {
+        return;
+    }
+
+    fprintf(svg, "<path id=\"%s\" d=\"M %.2lf %.2lf", idUso, grafo->vertices[idx].x, grafo->vertices[idx].y);
+
+    for (i = 1; i < qtd; i++) {
+        idx = buscarIndiceVertice(grafo, caminho[i]);
+
+        if (idx != -1) {
+            fprintf(svg, " L %.2lf %.2lf", grafo->vertices[idx].x, grafo->vertices[idx].y);
+        }
+    }
+
+    fprintf(svg,"\" stroke=\"%s\" stroke-width=\"3\" fill=\"none\" />\n",corUso);
+
+    idx = buscarIndiceVertice(grafo, caminho[0]);
+
+    if (idx != -1) {
+        fprintf(svg,"<text x=\"%.2lf\" y=\"%.2lf\" fill=\"%s\" font-size=\"16\">I</text>\n",grafo->vertices[idx].x + 4, grafo->vertices[idx].y - 4,corUso);
+    }
+
+    idx = buscarIndiceVertice(grafo, caminho[qtd - 1]);
+
+    if (idx != -1) {
+        fprintf( svg,"<text x=\"%.2lf\" y=\"%.2lf\" fill=\"%s\" font-size=\"16\">F</text>\n", grafo->vertices[idx].x + 4,grafo->vertices[idx].y - 4,corUso);
+    }
+
+    if (animado) {
+        fprintf(svg,"<circle r=\"5\" fill=\"%s\">\n""  <animateMotion dur=\"6s\" repeatCount=\"indefinite\">\n" "    <mpath href=\"#%s\" />\n""  </animateMotion>\n""</circle>\n",corUso, idUso);
     }
 }
