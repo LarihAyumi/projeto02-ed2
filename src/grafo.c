@@ -14,6 +14,7 @@ typedef struct Aresta {
     char lesq[MAX_CEP];
     double cmp;
     double vm;
+    int expandida;
     char nome[MAX_NOME];
     struct Aresta* prox;
 } Aresta;
@@ -30,6 +31,7 @@ struct Grafo {
     int qtd;
     int cap;
 };
+
 
 static int buscarIndiceVertice(Grafo* grafo, const char* id) {
     int i;
@@ -425,7 +427,220 @@ int calcularComponentesConexosBBox(Grafo* grafo, double vl, double* minX,double*
             qtd++;
         }
     }
-
     free(visitado);
     return qtd;
+}
+
+//funçoes para a expansão
+typedef struct {
+    int origem;
+    int destino;
+    Aresta* aresta;
+} ArestaAgm;
+
+static void limparExpansoes(Grafo* grafo) {
+    int i;
+    Aresta* atual;
+
+    if (grafo == NULL) {
+        return;
+    }
+
+    for (i = 0; i < grafo->qtd; i++) {
+        atual = grafo->vertices[i].adj;
+
+        while (atual != NULL) {
+            atual->expandida = 0;
+            atual = atual->prox;
+        }
+    }
+}
+
+static int contarArestasExpansao(Grafo* grafo) {
+    int i;
+    int qtd = 0;
+    Aresta* atual;
+
+    if (grafo == NULL) {
+        return 0;
+    }
+
+    for (i = 0; i < grafo->qtd; i++) {
+        atual = grafo->vertices[i].adj;
+        while (atual != NULL) {
+            qtd++;
+            atual = atual->prox;
+        }
+    }
+    return qtd;
+}
+
+static void trocarArestasAgm(ArestaAgm* a, ArestaAgm* b) {
+    ArestaAgm aux;
+    aux = *a;
+    *a = *b;
+    *b = aux;
+}
+
+static void ordenarArestasPorComprimento(ArestaAgm* arestas, int qtd) {
+    int i;
+    int j;
+    for (i = 0; i < qtd - 1; i++) {
+        for (j = i + 1; j < qtd; j++) {
+            if (arestas[j].aresta->cmp < arestas[i].aresta->cmp) {
+                trocarArestasAgm(&arestas[i], &arestas[j]);
+            }
+        }
+    }
+}
+
+static int buscarPai(int* pai, int x) {
+    while (pai[x] != x) {
+        pai[x] = pai[pai[x]];
+        x = pai[x];
+    }
+    return x;
+}
+
+static int unirConjuntos(int* pai, int* rank, int a, int b) {
+    int pa = buscarPai(pai, a);
+    int pb = buscarPai(pai, b);
+
+    if (pa == pb) {
+        return 0;
+    }
+
+    if (rank[pa] < rank[pb]) {
+        pai[pa] = pb;
+    } else if (rank[pa] > rank[pb]) {
+        pai[pb] = pa;
+    } else {
+        pai[pb] = pa;
+        rank[pa]++;
+    }
+
+    return 1;
+}
+
+int aplicarExpansaoViaria(Grafo* grafo, double vl) {
+    int qtdArestas;
+    int i;
+    int k = 0;
+    int expandidas = 0;
+    int* pai;
+    int* rank;
+    ArestaAgm* arestas;
+    Aresta* atual;
+
+    if (grafo == NULL || grafo->qtd <= 0) {
+        return 0;
+    }
+
+    limparExpansoes(grafo);
+
+    qtdArestas = contarArestasExpansao(grafo);
+
+    if (qtdArestas == 0) {
+        return 0;
+    }
+
+    arestas = malloc(sizeof(ArestaAgm) * qtdArestas);
+    pai = malloc(sizeof(int) * grafo->qtd);
+    rank = calloc(grafo->qtd, sizeof(int));
+
+    if (arestas == NULL || pai == NULL || rank == NULL) {
+        free(arestas);
+        free(pai);
+        free(rank);
+        return 0;
+    }
+
+    for (i = 0; i < grafo->qtd; i++) {
+        pai[i] = i;
+    }
+
+    for (i = 0; i < grafo->qtd; i++) {
+        atual = grafo->vertices[i].adj;
+
+        while (atual != NULL) {
+            arestas[k].origem = i;
+            arestas[k].destino = atual->destino;
+            arestas[k].aresta = atual;
+            k++;
+
+            atual = atual->prox;
+        }
+    }
+
+    ordenarArestasPorComprimento(arestas, qtdArestas);
+
+    for (i= 0; i< qtdArestas; i++) {
+        if (unirConjuntos(pai, rank, arestas[i].origem, arestas[i].destino)) {
+            if (arestas[i].aresta->vm < vl) {
+                arestas[i].aresta->vm *= 1.5;
+                arestas[i].aresta->expandida = 1;
+                expandidas++;
+            }
+        }
+    }
+
+    free(arestas);
+    free(pai);
+    free(rank);
+
+    return expandidas;
+}
+
+int arestaFoiExpandida(Grafo* grafo, const char* origem, const char* destino) {
+    int idxOrigem;
+    int idxDestino;
+    Aresta* atual;
+
+    if (grafo== NULL||origem== NULL||destino== NULL) {
+        return 0;
+    }
+
+    idxOrigem= buscarIndiceVertice(grafo, origem);
+    idxDestino= buscarIndiceVertice(grafo, destino);
+
+    if (idxOrigem == -1||idxDestino == -1) {
+        return 0;
+    }
+
+    atual = grafo->vertices[idxOrigem].adj;
+
+    while (atual != NULL) {
+        if (atual->destino == idxDestino) {
+            return atual->expandida;
+        }
+
+        atual = atual->prox;
+    }
+
+    return 0;
+}
+
+void desenharExpansaoViariaSvg(Grafo* grafo, FILE* svg) {
+    int i;
+    Aresta* atual;
+    Vertice* origem;
+    Vertice* destino;
+
+    if (grafo == NULL||svg == NULL) {
+        return;
+    }
+
+    for (i = 0; i < grafo->qtd; i++) {
+        origem = &grafo->vertices[i];
+        atual = origem->adj;
+
+        while (atual != NULL) {
+            if (atual->expandida) {
+                destino = &grafo->vertices[atual->destino];
+
+                fprintf(svg, "<line x1=\"%.2lf\" y1=\"%.2lf\" x2=\"%.2lf\" y2=\"%.2lf\" ""stroke=\"red\" stroke-width=\"4\" />\n", origem->x,origem->y, destino->x, destino->y);
+            }
+            atual = atual->prox;
+        }
+    }
 }
