@@ -268,6 +268,95 @@ void testGrafoDesenhaExpansaoViariaSvg(void) {
     destruirGrafo(grafo);
 }
 
+void testGrafoVerticeMaisProximo(void) {
+    Grafo* grafo = criarGrafo();
+    char id[GRAFO_ID_MAX];
+
+    TEST_ASSERT_NOT_NULL(grafo);
+
+    inserirVertice(grafo, "v1", 0.0, 0.0);
+    inserirVertice(grafo, "v2", 100.0, 0.0);
+    inserirVertice(grafo, "v3", 100.0, 100.0);
+
+    TEST_ASSERT_EQUAL_INT(1, obterVerticeMaisProximo(grafo, 90.0, 10.0, id, GRAFO_ID_MAX));
+    TEST_ASSERT_EQUAL_STRING("v2", id);
+
+    destruirGrafo(grafo);
+}
+
+void testGrafoDijkstraCaminhoMaisCurto(void) {
+    Grafo* grafo = criarGrafo();
+    char caminho[10][GRAFO_ID_MAX];
+    double custo = 0.0;
+    int qtd;
+
+    TEST_ASSERT_NOT_NULL(grafo);
+
+    inserirVertice(grafo, "v1", 0.0, 0.0);
+    inserirVertice(grafo, "v2", 100.0, 0.0);
+    inserirVertice(grafo, "v3", 200.0, 0.0);
+
+    inserirAresta(grafo, "v1", "v2", "cep1", "cep2", 10.0, 1.0, "Rua_A");
+    inserirAresta(grafo, "v2", "v3", "cep2", "cep3", 10.0, 1.0, "Rua_B");
+    inserirAresta(grafo, "v1", "v3", "cep1", "cep3", 25.0, 10.0, "Rua_C");
+
+    qtd = calcularCaminhoDijkstra(grafo, "v1", "v3", GRAFO_CRITERIO_CURTO, caminho, 10, &custo);
+
+    TEST_ASSERT_EQUAL_INT(3, qtd);
+    TEST_ASSERT_EQUAL_STRING("v1", caminho[0]);
+    TEST_ASSERT_EQUAL_STRING("v2", caminho[1]);
+    TEST_ASSERT_EQUAL_STRING("v3", caminho[2]);
+
+    TEST_ASSERT_EQUAL_INT(200, (int)(custo * 10 + 0.5));
+
+    destruirGrafo(grafo);
+}
+
+void testGrafoDijkstraCaminhoMaisRapido(void) {
+    Grafo* grafo = criarGrafo();
+    char caminho[10][GRAFO_ID_MAX];
+    double custo = 0.0;
+    int qtd;
+
+    TEST_ASSERT_NOT_NULL(grafo);
+
+    inserirVertice(grafo, "v1", 0.0, 0.0);
+    inserirVertice(grafo, "v2", 100.0, 0.0);
+    inserirVertice(grafo, "v3", 200.0, 0.0);
+
+    inserirAresta(grafo, "v1", "v2", "cep1", "cep2", 10.0, 1.0, "Rua_A");
+    inserirAresta(grafo, "v2", "v3", "cep2", "cep3", 10.0, 1.0, "Rua_B");
+    inserirAresta(grafo, "v1", "v3", "cep1", "cep3", 25.0, 10.0, "Rua_C");
+
+    qtd = calcularCaminhoDijkstra(grafo,"v1", "v3", GRAFO_CRITERIO_RAPIDO, caminho,10, &custo);
+
+    TEST_ASSERT_EQUAL_INT(2, qtd);
+    TEST_ASSERT_EQUAL_STRING("v1", caminho[0]);
+    TEST_ASSERT_EQUAL_STRING("v3", caminho[1]);
+
+    TEST_ASSERT_EQUAL_INT(25, (int)(custo * 10 + 0.5));
+
+    destruirGrafo(grafo);
+}
+
+void testGrafoDijkstraSemCaminho(void) {
+    Grafo* grafo = criarGrafo();
+    char caminho[10][GRAFO_ID_MAX];
+    double custo = 0.0;
+    int qtd;
+
+    TEST_ASSERT_NOT_NULL(grafo);
+
+    inserirVertice(grafo, "v1", 0.0, 0.0);
+    inserirVertice(grafo, "v2", 100.0, 0.0);
+
+    qtd = calcularCaminhoDijkstra(grafo, "v1","v2", GRAFO_CRITERIO_CURTO,caminho,10, &custo);
+
+    TEST_ASSERT_EQUAL_INT(0, qtd);
+
+    destruirGrafo(grafo);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -282,6 +371,10 @@ int main(void) {
     RUN_TEST(testGrafoComponentesConexosBBox);
     RUN_TEST(testGrafoExpansaoViaria);
     RUN_TEST(testGrafoDesenhaExpansaoViariaSvg);
+    RUN_TEST(testGrafoVerticeMaisProximo);
+    RUN_TEST(testGrafoDijkstraCaminhoMaisCurto);
+    RUN_TEST(testGrafoDijkstraCaminhoMaisRapido);
+    RUN_TEST(testGrafoDijkstraSemCaminho);
 
     return UNITY_END();
 }
