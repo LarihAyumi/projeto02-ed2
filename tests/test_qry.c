@@ -60,6 +60,9 @@ void tearDown(void) {
 
     remove("testeExp.txt");
     remove("testeExp.svg");
+
+    remove("testeP.txt");
+    remove("testeP.svg");
 }
 
 void testRq(void) {
@@ -844,6 +847,119 @@ void testExp(void) {
     destruirGrafo(grafo);
 }
 
+void testP(void) {
+    FILE* qry;
+    FILE* txt;
+    FILE* svg;
+    FILE* arq;
+    HashFile* pessoasHash;
+    HashFile* quadrasHash;
+    Grafo* grafo;
+    Quadra* q1;
+    Quadra* q2;
+    char buffer[300];
+
+    int achouCurto = 0;
+    int achouRapido = 0;
+    int achouPath = 0;
+    int achouAnimacao = 0;
+    int achouI = 0;
+    int achouF = 0;
+
+    qry = fopen("teste.qry", "w");
+    TEST_ASSERT_NOT_NULL(qry);
+
+    fprintf(qry, "@o? R0 cep1 S 0\n");
+    fprintf(qry, "@o? R1 cep2 S 0\n");
+    fprintf(qry, "p? R0 R1 blue red\n");
+    fclose(qry);
+
+    pessoasHash = createFile("teste_pessoas_p", getPessoaSize());
+    quadrasHash = createFile("teste_quadras_p", getQuadraSize());
+    TEST_ASSERT_NOT_NULL(pessoasHash);
+    TEST_ASSERT_NOT_NULL(quadrasHash);
+    q1 = createQuadra("cep1", 0, 0, 20, 20);
+    q2 = createQuadra("cep2", 200, 0, 20, 20);
+
+    insertRegister(quadrasHash, "cep1", q1);
+    insertRegister(quadrasHash, "cep2", q2);
+
+    free(q1);
+    free(q2);
+
+    grafo = criarGrafo();
+    TEST_ASSERT_NOT_NULL(grafo);
+
+    inserirVertice(grafo, "v1", 0.0, 0.0);
+    inserirVertice(grafo, "v2", 100.0, 0.0);
+    inserirVertice(grafo, "v3", 200.0, 0.0);
+    inserirAresta(grafo, "v1", "v2", "cep1", "cep2", 100.0, 10.0, "Rua_A");
+    inserirAresta(grafo, "v2", "v3", "cep2", "cep3", 100.0, 10.0, "Rua_B");
+    inserirAresta(grafo, "v1", "v3", "cep1", "cep3", 250.0, 100.0, "Av_Rapida");
+
+    txt = fopen("testeP.txt", "w");
+    TEST_ASSERT_NOT_NULL(txt);
+    svg = fopen("testeP.svg", "w");
+    TEST_ASSERT_NOT_NULL(svg);
+
+    startSVG(svg);
+    processQry("teste.qry", pessoasHash, quadrasHash, txt, svg, grafo);
+    endSVG(svg);
+
+    fclose(txt);
+    fclose(svg);
+
+    arq = fopen("testeP.txt", "r");
+    TEST_ASSERT_NOT_NULL(arq);
+
+    while (fgets(buffer, sizeof(buffer), arq) != NULL) {
+        if (strstr(buffer, "Caminho mais curto") != NULL) {
+            achouCurto = 1;
+        }
+
+        if (strstr(buffer, "Caminho mais rapido") != NULL) {
+            achouRapido = 1;
+        }
+    }
+
+    fclose(arq);
+
+    TEST_ASSERT_TRUE(achouCurto);
+    TEST_ASSERT_TRUE(achouRapido);
+
+    arq = fopen("testeP.svg", "r");
+    TEST_ASSERT_NOT_NULL(arq);
+
+    while (fgets(buffer, sizeof(buffer), arq) != NULL) {
+        if (strstr(buffer, "<path") != NULL) {
+            achouPath = 1;
+        }
+
+        if (strstr(buffer, "animateMotion") != NULL) {
+            achouAnimacao = 1;
+        }
+
+        if (strstr(buffer, ">I<") != NULL) {
+            achouI = 1;
+        }
+
+        if (strstr(buffer, ">F<") != NULL) {
+            achouF = 1;
+        }
+    }
+
+    fclose(arq);
+
+    TEST_ASSERT_TRUE(achouPath);
+    TEST_ASSERT_TRUE(achouAnimacao);
+    TEST_ASSERT_TRUE(achouI);
+    TEST_ASSERT_TRUE(achouF);
+    destruirGrafo(grafo);
+    closeFile(pessoasHash);
+    closeFile(quadrasHash);
+}
+
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -859,6 +975,7 @@ int main(void) {
     RUN_TEST(testMvm);
     RUN_TEST(testRegs);
     RUN_TEST(testExp);
+    RUN_TEST(testP);
 
     return UNITY_END();
 }

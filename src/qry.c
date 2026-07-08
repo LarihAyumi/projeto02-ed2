@@ -477,8 +477,62 @@ void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHa
         }
 
         else if (strcmp(comando, "p?") == 0) {
+            char reg1[10], reg2[10];
+            char cc[30], cr[30];
+            char idOrigem[GRAFO_ID_MAX];
+            char idDestino[GRAFO_ID_MAX];
+            char caminhoCurto[1024][GRAFO_ID_MAX];
+            char caminhoRapido[1024][GRAFO_ID_MAX];
+            int idx1, idx2, qtdCurto, qtdRapido;
+            double custoCurto = 0.0;
+            double custoRapido = 0.0;
 
-        }
+            fscanf(qry, "%s %s %s %s", reg1, reg2, cc, cr);
+            fprintf(txt, "p? %s %s %s %s\n", reg1, reg2, cc, cr);
+            idx1 = regToIndex(reg1);
+            idx2 = regToIndex(reg2);
+
+            if (grafo == NULL) {
+                fprintf(txt, "O grafo não existe.\n\n");
+            }
+            else if (idx1 == -1 || idx2 == -1) {
+                fprintf(txt, "Registrador invalido.\n\n");
+            }
+            else if (!regs[idx1].usado || !regs[idx2].usado) {
+                fprintf(txt, "Registrador sem referencia geografica.\n\n");
+            }
+            else if (!obterVerticeMaisProximo(grafo, regs[idx1].x, regs[idx1].y, idOrigem, GRAFO_ID_MAX)||!obterVerticeMaisProximo(grafo, regs[idx2].x, regs[idx2].y, idDestino, GRAFO_ID_MAX)) {
+                fprintf(txt, "Nao foi possivel encontrar vertices proximos.\n\n");
+            }else {
+                fprintf(txt, "Origem: %s -> vertice %s\n", reg1, idOrigem);
+                fprintf(txt, "Destino: %s -> vertice %s\n", reg2, idDestino);
+
+                qtdCurto = calcularCaminhoDijkstra(grafo,idOrigem,idDestino,GRAFO_CRITERIO_CURTO,caminhoCurto,1024,&custoCurto);
+                qtdRapido = calcularCaminhoDijkstra(grafo,idOrigem,idDestino,GRAFO_CRITERIO_RAPIDO, caminhoRapido,1024,&custoRapido);
+
+                if (qtdCurto <= 0) {
+                    fprintf(txt, "Destino inacessivel pelo criterio de menor caminho.\n\n");
+                } else {
+                    fprintf(txt, "Custo do caminho mais curto: %.2lf\n", custoCurto);
+                    escreverCaminhoTxt(grafo, txt, caminhoCurto, qtdCurto, "Caminho mais curto:");
+
+                    if (svg != NULL) {
+                        desenharCaminhoSvg(grafo, svg, caminhoCurto, qtdCurto, cc, "caminho_curto", 1);
+                    }
+                }
+
+                if (qtdRapido <= 0) {
+                    fprintf(txt, "Destino inacessivel pelo criterio de menor tempo.\n\n");
+                } else {
+                    fprintf(txt, "Custo do caminho mais rapido: %.2lf\n", custoRapido);
+                    escreverCaminhoTxt(grafo, txt, caminhoRapido, qtdRapido, "Caminho mais rapido:");
+
+                    if (svg != NULL) {
+                        desenharCaminhoSvg(grafo, svg, caminhoRapido, qtdRapido, cr, "caminho_rapido", 1);
+                    }
+                }
+            }
+        }    
     }
 fclose(qry);
 }
