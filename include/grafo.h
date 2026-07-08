@@ -146,4 +146,53 @@ void desenharExpansaoViariaSvg(Grafo* grafo, FILE* svg);
  */
 int arestaFoiExpandida(Grafo* grafo, const char* origem, const char* destino);
 
+
+/**
+ * Encontra o vértice mais próximo de uma coordenada.
+ * Essa função vai ser usada pelo comando p? para transformar as coordenadas dos registradores R0..R10 em vértices do grafo.
+ * @param grafo Grafo consultado
+ * @param x Coordenada x da referencia
+ * @param y Coordenada y da referencia
+ * @param idOut Vetor onde sera armazenado o id do vertice encontrado
+ * @param tamId Tamanho do vetor idOut
+ * @return 1 se encontrou um vertice, 0 caso contrario
+ */
+int obterVerticeMaisProximo(Grafo* grafo, double x, double y, char* idOut, int tamId);
+
+/**
+ * Calcula um caminho minimo entre dois vértices usando Dijkstra.
+ * O critério define se o custo usado será o comprimento da aresta ou o tempo de percurso da aresta.
+ * @param grafo Grafo analisado
+ * @param origem Id do vértice de origem
+ * @param destino Id do vértice de destino
+ * @param criterio GRAFO_CRITERIO_CURTO ou GRAFO_CRITERIO_RAPIDO
+ * @param caminho Vetor que receberá os ids dos vertices do caminho
+ * @param maxCaminho Capacidade máxima do vetor caminho
+ * @param custo Ponteiro que receberá o custo total do caminho
+ * @return Quantidade de vértices no caminho, ou 0 se nao houver caminho
+ */
+int calcularCaminhoDijkstra(Grafo* grafo, const char* origem,const char* destino, int criterio, char caminho[][GRAFO_ID_MAX],int maxCaminho, double* custo);
+
+/**
+ * Escreve uma descrição simples do caminho em TXT.
+ * @param grafo Grafo consultado
+ * @param txt Arquivo de saida textual
+ * @param caminho Vetor com ids dos vertices do caminho
+ * @param qtd Quantidade de vertices no caminho
+ * @param titulo Titulo do caminho escrito
+ */
+void escreverCaminhoTxt(Grafo* grafo, FILE* txt, char caminho[][GRAFO_ID_MAX], int qtd, const char* titulo);
+
+/**
+ * Desenha um caminho no SVG.
+ * @param grafo Grafo consultado
+ * @param svg Arquivo SVG
+ * @param caminho Vetor com ids dos vértices do caminho
+ * @param qtd Quantidade de vértices no caminho
+ * @param cor Cor usada para desenhar o caminho
+ * @param idPath Identificador do path SVG
+ * @param animado 1 para desenhar animação, 0 caso contrário
+ */
+void desenharCaminhoSvg(Grafo* grafo, FILE* svg, char caminho[][GRAFO_ID_MAX], int qtd, const char* cor, const char* idPath, int animado);
+
 #endif
