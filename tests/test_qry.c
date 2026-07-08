@@ -57,6 +57,9 @@ void tearDown(void) {
 
     remove("testeRegs.txt");
     remove("testeRegs.svg");
+
+    remove("testeExp.txt");
+    remove("testeExp.svg");
 }
 
 void testRq(void) {
@@ -749,6 +752,98 @@ void testRegs(void) {
     destruirGrafo(grafo);
 }
 
+void testExp(void) {
+    FILE* qry;
+    FILE* txt;
+    FILE* svg;
+    FILE* arq;
+    Grafo* grafo;
+    char buffer[300];
+
+    int achouExpandidas = 0;
+    int achouQtd = 0;
+    int achouLinha = 0;
+    int achouVermelho = 0;
+    int achouGrossa = 0;
+
+    qry = fopen("teste.qry", "w");
+    TEST_ASSERT_NOT_NULL(qry);
+
+    fprintf(qry, "exp 5.0\n");
+    fclose(qry);
+
+    grafo = criarGrafo();
+    TEST_ASSERT_NOT_NULL(grafo);
+
+    inserirVertice(grafo, "v1", 0.0, 0.0);
+    inserirVertice(grafo, "v2", 100.0, 0.0);
+    inserirVertice(grafo, "v3", 200.0, 0.0);
+
+    inserirAresta(grafo, "v1", "v2", "cep1", "cep2", 10.0, 4.0, "Rua_A");
+    inserirAresta(grafo, "v2", "v3", "cep2", "cep3", 20.0, 3.0, "Rua_B");
+    inserirAresta(grafo, "v1", "v3", "cep1", "cep3", 100.0, 2.0, "Rua_C");
+
+    txt = fopen("testeExp.txt", "w");
+    TEST_ASSERT_NOT_NULL(txt);
+
+    svg = fopen("testeExp.svg", "w");
+    TEST_ASSERT_NOT_NULL(svg);
+
+    startSVG(svg);
+    processQry("teste.qry", NULL, NULL, txt, svg, grafo);
+    endSVG(svg);
+
+    fclose(txt);
+    fclose(svg);
+
+    TEST_ASSERT_EQUAL_INT(60, (int)(obterVelocidadeAresta(grafo, "v1", "v2") * 10 + 0.5));
+    TEST_ASSERT_EQUAL_INT(45, (int)(obterVelocidadeAresta(grafo, "v2", "v3") * 10 + 0.5));
+    TEST_ASSERT_EQUAL_INT(20, (int)(obterVelocidadeAresta(grafo, "v1", "v3") * 10 + 0.5));
+
+    arq = fopen("testeExp.txt", "r");
+    TEST_ASSERT_NOT_NULL(arq);
+
+    while (fgets(buffer, sizeof(buffer), arq) != NULL) {
+        if (strstr(buffer, "Arestas expandidas") != NULL) {
+            achouExpandidas = 1;
+        }
+
+        if (strstr(buffer, "2") != NULL) {
+            achouQtd = 1;
+        }
+    }
+
+    fclose(arq);
+
+    TEST_ASSERT_TRUE(achouExpandidas);
+    TEST_ASSERT_TRUE(achouQtd);
+
+    arq = fopen("testeExp.svg", "r");
+    TEST_ASSERT_NOT_NULL(arq);
+
+    while (fgets(buffer, sizeof(buffer), arq) != NULL) {
+        if (strstr(buffer, "<line") != NULL) {
+            achouLinha = 1;
+        }
+
+        if (strstr(buffer, "red") != NULL) {
+            achouVermelho = 1;
+        }
+
+        if (strstr(buffer, "stroke-width=\"4\"") != NULL) {
+            achouGrossa = 1;
+        }
+    }
+
+    fclose(arq);
+
+    TEST_ASSERT_TRUE(achouLinha);
+    TEST_ASSERT_TRUE(achouVermelho);
+    TEST_ASSERT_TRUE(achouGrossa);
+
+    destruirGrafo(grafo);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -763,6 +858,7 @@ int main(void) {
     RUN_TEST(testO);
     RUN_TEST(testMvm);
     RUN_TEST(testRegs);
+    RUN_TEST(testExp);
 
     return UNITY_END();
 }

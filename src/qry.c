@@ -440,7 +440,7 @@ void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHa
             fprintf(txt, "regs %.2lf\n", vl);
 
             if (grafo==NULL) {
-                fprintf(txt, "Grafo inexistente.\n\n");
+                fprintf(txt, "O grafo não existe.\n\n");
             } else {
                 qtd = calcularComponentesConexosBBox(grafo, vl, minX, minY, maxX, maxY, maxComp);
                 fprintf(txt, "Componentes conexos: %d\n\n", qtd);
@@ -458,9 +458,24 @@ void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHa
         }
 
         else if (strcmp(comando, "exp") == 0) {
+            double vl;
+            int qtd;
 
+            fscanf(qry, "%lf", &vl);
+            fprintf(txt, "exp %.2lf\n", vl);
+
+            if (grafo == NULL) {
+                fprintf(txt, "O grafo não existe.\n\n");
+            } else {
+                qtd = aplicarExpansaoViaria(grafo, vl);
+                fprintf(txt, "Arestas expandidas: %d\n\n", qtd);
+
+                if (svg != NULL) {
+                    desenharExpansaoViariaSvg(grafo, svg);
+                }
+            }
         }
-        
+
         else if (strcmp(comando, "p?") == 0) {
 
         }
