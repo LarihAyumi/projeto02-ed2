@@ -3,6 +3,10 @@
 
 #include <stdio.h>
 
+#define GRAFO_ID_MAX 64
+#define GRAFO_CRITERIO_CURTO 0
+#define GRAFO_CRITERIO_RAPIDO 1
+
 /**
  * Módulo responsável pela representação do sistema viário da cidade.
  * O sistema viário é armazenado como um grafo direcionado usando listas de adjacencia.
