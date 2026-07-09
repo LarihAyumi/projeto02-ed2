@@ -278,20 +278,27 @@ void processQry( const char* qryPath, HashFile* pessoasHash, HashFile* quadrasHa
 
             Pessoa* p = malloc(getPessoaSize());
 
-            if (p && searchRegister( pessoasHash, cpf, p) == 0) {
+            if (!p) {
+                fprintf(txt, "Erro ao alocar pessoa para consulta h?: %s\n\n", cpf);
+            }
+            else if (searchRegister(pessoasHash, cpf, p) != 0) {
+                fprintf(txt, "Pessoa nao encontrada: %s\n\n", cpf);
+                free(p);
+            }
+            else {
                 fprintf(txt, "Nome: %s %s\n", getNome(p), getSobrenome(p));
                 fprintf(txt, "CPF: %s \n", getCpf(p));
                 fprintf(txt, "Sexo: %c\n", getSexo(p));
                 fprintf(txt, "Nascimento: %s\n", getNasc(p));
-            }
+
             if (pessoaTemMoradia(p)) {
-                fprintf(txt, "Endereço: %s/%c/%d/%s\n\n", getCepMoradia(p), getFaceMoradia(p), getNumMoradia(p), getCompMoradia(p));
+                fprintf(txt, "Endereço: %s/%c/%d/%s\n\n",getCepMoradia(p),getFaceMoradia(p),getNumMoradia(p),getCompMoradia(p));
             } else {
-            fprintf(txt, "Sem-teto\n\n");
+                fprintf(txt, "Sem-teto\n\n");
             }
             free(p);
         }
-
+    }
         else if (strcmp(comando, "nasc") == 0) {
             char cpf[20], nome[50], sobrenome[50], nasc[11];
             char sexo;
