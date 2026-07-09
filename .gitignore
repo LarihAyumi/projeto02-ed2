@@ -9,8 +9,32 @@
 *.txt
 !leiame.txt
 
-#Executáveis
+#Executáveis e binários
 *.exe
-
-#Arquivos temporários
 *.o
+ted
+src/ted
+
+#Pastas de saídas
+o/
+saida/
+
+# Executáveis de teste
+test_hash
+test_svg
+test_pessoa
+test_pm
+test_quadra
+test_geo
+test_qry
+test_grafo
+test_via
+test_hash.exe
+test_svg.exe
+test_pessoa.exe
+test_pm.exe
+test_quadra.exe
+test_geo.exe
+test_qry.exe
+test_grafo.exe
+test_via.exe
