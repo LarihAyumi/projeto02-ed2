@@ -7,11 +7,17 @@ INCLUDE = -I../include -I../Unity
 
 all: ted
 
-ted:
+ted: main.c $(SRC)
 	$(CC) $(CFLAGS) main.c $(SRC) $(INCLUDE) -o ted
 
 run:
 	./ted -e ../tests -f cidade.geo -pm pessoas.pm -q comandos.qry -o ../saida
+
+run-casos-de-teste:
+	./ted -e ../tests -f c1.geo -v c1-v.via -q c1/00-perc-smpl.qry -o ../o
+
+run-casos-de-teste-win:
+	ted.exe -e ../tests -f c1.geo -v c1-v.via -q c1/00-perc-smpl.qry -o ../o
 
 tstall:
 	cd .. && $(CC) $(CFLAGS) tests/test_hashfile.c src/hashfile.c Unity/unity.c -Iinclude -IUnity -o test_hash && ./test_hash
@@ -47,4 +53,6 @@ clean-win:
 	-del /Q ..\saida\*.svg ..\saida\*.txt ..\saida\*.hfd ..\saida\*.hf ..\saida\*.hfc ..\saida\*.dot 2>nul
 	-del /Q ..\test_grafo.exe ..\test_via.exe 2>nul
 
-tudo: ted run tstall
+tudo: ted run-casos-de-teste tstall
+
+tudo-win: ted run-casos-de-teste-win tstall-win

@@ -1,15 +1,37 @@
 Nome: Larissa Ayumi Costa 
 Matrícula: 202400560134
 
-Primeiro projeto de Estrutura de Dados II
-Sistema de Informação Geográfica simplificado (SIG).
+Mesclagem do 1° e 2° projeto de Estrutura de Dados II
+Sistema de Informação Geográfica simplificado (SIG) com sistema viário.
+
+Descrição
+Este projeto implementa um SIG simplificado para manipulação de quadras, habitantes, moradores (Contidos no primeiro projeto) e sistema viário da cidade(Implementação realizada no segundo projeto[atual]).
+O programa processa arquivos de entrada .geo, .pm, .via e .qry, gera saídas textuais e gráficas em SVG, e utiliza estruturas de dados modulares para armazenamento e processamento das informações.
 
 Funcionalidades
  .geo para a manipulação de quadras; 
  .pm para o cadastro de habitantes e moradores; 
  .qry para a Consultas e atualizações;
- .hf e .hfc armazenamento em hashfile extensível com persistência em disco 
- .hfd sendo gerado para representação legível do hashfile
+ .hf e .hfc armazenamento em hashfile extensível com persistência em disco;
+ .hfd sendo gerado para representação legível do hashfile;
+ .txt para relatórios textuais das consultas;
+ .svg para representação gráfica das quadras, sistema viário, regiões e percursos;
+ .via para leitura do sistema viário representado por grafo direcionado.
+
+Comandos implementados
+rq: remove uma quadra de acordo com cep e atualiza moradores afetados;
+pq: calcula quantidade de moradores de uma quadra;
+censo: gera estatísticas sobre habitantes de Bitnópolis;
+h?: consulta dados de um habitante por cpf;
+nasc: pessoa nasce;
+rip: pessoa falece;
+mud: altera endereço de um morador;
+dspj: despeja um morador;
+@o?: armazena coordenada de endereço em registrador geográfico;
+mvm: atualiza velocidade média de arestas em uma região;
+regs: calcula componentes conexos considerando trechos lentos;
+exp: aplica expansão viária em arestas selecionadas da árvore geradora mínima;
+p?: calcula percurso mais curto e mais rápido entre dois registradores.
 
 Estrutura
 - hashfile: implementação do hash extensível em disco;
@@ -19,6 +41,40 @@ Estrutura
 - qry: processamento dos comandos do arquivo .qry;
 - quadra: representação das quadras da cidade;
 - pessoa: representação de habitantes e moradores.
+- via: leitura e processamento do arquivo .via;
+- grafo: representação do sistema viário.
 
-Para compilar, rodar o programa e os testes no windows com Mingw:
+Para compilar, rodar o programa e os testes no windows:
+mingw32-make tudo-win
+
+Para compilar, rodar o programa e os testes no windows:
 mingw32-make tudo
+
+Para compilar apenas o programa:
+mingw32-make ted
+
+Para rodar apenas os testes unitários no windows:
+mingw32-make tstall-win
+
+Para rodar apenas os testes unitários no linux:
+mingw32-make tstall
+
+Para limpar os arquivos gerados no windows:
+mingw32-make clean-win
+
+Para limpar os arquivos gerados no linux:
+mingw32-make clean
+
+Exemplo de execução:
+.\ted.exe -e ../tests -f c1.geo -v c1-v.via -q c1/00-perc-smpl.qry -o ../o
+
+Parâmetros do programa
+-e path       Diretório-base de entrada
+-f arq.geo    Arquivo com a descrição da cidade.
+-pm arq.pm    Arquivo .pm de pessoas e moradias
+-q arq.qry    Arquivo com consultas.
+-o path       Diretório-base de saída
+-v arq.via    Arquivo de vias (para construção do grafo)
+
+Observação
+As saídas geradas pelo programa devem ser direcionadas para a pasta o, utilizando o parâmetro -o ../o.
