@@ -3,7 +3,9 @@
 
 
 void startSVG(FILE* svg) {
-    fprintf(svg, "<svg xmlns=\"http://www.w3.org/2000/svg\">\n");
+    if (svg == NULL) return;
+    
+    fprintf(svg,"<svg xmlns=\"http://www.w3.org/2000/svg\" ""width=\"2200\" height=\"1600\" ""viewBox=\"-150 -150 2200 1600\" ""style=\"background:white; overflow:visible\">\n");
 }
 
 

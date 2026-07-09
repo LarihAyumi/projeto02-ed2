@@ -712,15 +712,7 @@ static double custoAresta(Aresta* aresta, int criterio) {
     return aresta->cmp;
 }
 
-int calcularCaminhoDijkstra(
-    Grafo* grafo,
-    const char* origem,
-    const char* destino,
-    int criterio,
-    char caminho[][GRAFO_ID_MAX],
-    int maxCaminho,
-    double* custo
-) {
+int calcularCaminhoDijkstra(Grafo* grafo, const char* origem,const char* destino,int criterio,char caminho[][GRAFO_ID_MAX],int maxCaminho,double* custo) {
     int n, i, j, atualIdx, origemIdx, destinoIdx;
     int qtdCaminho = 0;
     int* visitado;
@@ -847,16 +839,8 @@ int calcularCaminhoDijkstra(
     return qtdCaminho;
 }
 
-void escreverCaminhoTxt(
-    Grafo* grafo,
-    FILE* txt,
-    char caminho[][GRAFO_ID_MAX],
-    int qtd,
-    const char* titulo
-) {
-    int i;
-    int idxOrigem;
-    int idxDestino;
+void escreverCaminhoTxt(Grafo* grafo,FILE* txt,char caminho[][GRAFO_ID_MAX],int qtd,const char* titulo) {
+    int i, idxOrigem, idxDestino;
     Aresta* aresta;
 
     if (grafo == NULL || txt == NULL || caminho == NULL || qtd <= 0) {
@@ -885,15 +869,7 @@ void escreverCaminhoTxt(
     fprintf(txt, "\n");
 }
 
-void desenharCaminhoSvg(
-    Grafo* grafo,
-    FILE* svg,
-    char caminho[][GRAFO_ID_MAX],
-    int qtd,
-    const char* cor,
-    const char* idPath,
-    int animado
-) {
+void desenharCaminhoSvg(Grafo* grafo,FILE* svg,char caminho[][GRAFO_ID_MAX],int qtd,const char* cor,const char* idPath,int animado) {
     int i, idx;
     const char* corUso;
     const char* idUso;
@@ -935,6 +911,6 @@ void desenharCaminhoSvg(
     }
 
     if (animado) {
-        fprintf(svg,"<circle r=\"5\" fill=\"%s\">\n""  <animateMotion dur=\"6s\" repeatCount=\"indefinite\">\n" "    <mpath href=\"#%s\" />\n""  </animateMotion>\n""</circle>\n",corUso, idUso);
+        fprintf(svg,"<g>\n""  <rect x=\"-10\" y=\"-5\" width=\"20\" height=\"10\" fill=\"pink\" stroke=\"black\" stroke-width=\"1\" />\n""  <circle cx=\"-6\" cy=\"6\" r=\"3\" fill=\"black\" />\n""  <circle cx=\"6\" cy=\"6\" r=\"3\" fill=\"black\" />\n""  <animateMotion dur=\"6s\" repeatCount=\"indefinite\" rotate=\"auto\">\n""    <mpath href=\"#%s\" />\n""  </animateMotion>\n""</g>\n",idUso);
     }
 }
